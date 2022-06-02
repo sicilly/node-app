@@ -67,6 +67,8 @@ Server running on port 5000
 
 ![image-20220602100832281](https://picture-1308610694.cos.ap-nanjing.myqcloud.com/202206021008322.png)
 
+## 连接数据库
+
 https://www.mongodb.com/atlas/database 注册并创建一个免费的数据库
 
 具体方法参考这里：https://blog.csdn.net/weixin_44519083/article/details/119610881
@@ -135,5 +137,71 @@ module.exports={
 [nodemon] starting `node server.js`
 Server running on port 5000
 MongoDB Connected
+```
+
+## 搭建路由和数据模型
+
+routes\api\users.js
+
+```js
+// @login & register
+const express = require("express");
+const router = express.Router();
+
+// $route GET api/users/test
+// @desc 返回的请求的json数据
+// @access public
+router.get("/test",(req,res)=>{
+    res.json({msg:"login"})
+});
+
+module.exports=router;
+```
+
+在server.js中引入和使用users
+
+```js
+// 引入users.js
+const users=require("./routes/api/users")
+
+// 使用routes
+app.use("/api/users",users);
+```
+
+在浏览器中访问：
+
+![image-20220602132155808](https://picture-1308610694.cos.ap-nanjing.myqcloud.com/202206021321867.png)
+
+接下来开始创建模型，新建models/users.js
+
+```js
+const mongoose = require("mongoose");
+
+const Schema = mongoose.Schema;
+
+// Create Schema
+const UserSchema = new Schema({
+    name:{
+        type:String,
+        require:true
+    },
+    email:{
+        type:String,
+        require:true
+    },
+    password:{
+        type:String,
+        require:true
+    },
+    avatar:{
+        type:String
+    },
+    date:{
+        type:String,
+        default:Date.now
+    }
+})
+
+module.exports=User=mongoose.model("users",UserSchema);
 ```
 

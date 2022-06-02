@@ -2,6 +2,10 @@ const express =require("express");
 const mongoose = require("mongoose");
 const app=express();
 
+// 引入users.js
+const users=require("./routes/api/users")
+
+
 // db config
 const db=require("./config/keys.js").mongoURI
 
@@ -16,6 +20,9 @@ mongoose.connect(db)
 app.get("/",(req,res)=>{
     res.send("Hello world!")
 })
+
+// 使用routes
+app.use("/api/users",users);
 
 const port = process.env.PORT || 5000;
 
