@@ -205,3 +205,70 @@ const UserSchema = new Schema({
 module.exports=User=mongoose.model("users",UserSchema);
 ```
 
+## 搭建注册接口并存储数据
+
+安装postman，测试一下刚才的test接口
+
+![image-20220602140830697](https://picture-1308610694.cos.ap-nanjing.myqcloud.com/202206021408744.png)
+
+安装body-parser和bcrypt(用于对密码进行加密)
+
+```bash
+PS E:\FE\projects\node-demo\node-app> npm install body-parser
+PS E:\FE\projects\node-demo\node-app> npm install bcrypt
+```
+
+在server.js中引入并使用body-parser
+
+```js
+const bodyParser=require("body-parser")
+
+// 使用body-parser中间件
+app.use(bodyParser.urlencoded({extended:false}))
+app.use(bodyParser.json())
+```
+
+user.js先引入User，写register接口
+
+```js
+const User = require("../../models/User");
+
+// $route POST api/users/register
+// @desc 返回的请求的json数据
+// @access public
+router.post("/register",(req,res)=>{
+    // console.log(req.body);
+    // 查询数据库中是否有这个邮箱
+    User.findOne({email:req.body.email})
+        .then((user)=>{
+            if(user){
+                return res.status(400).json({email:"邮箱已被注册!"});
+            }else{
+                const newUser = new User({
+                    name:req.body.name,
+                    email:req.body.email,
+                    password:req.body.password
+                })
+
+                bcrypt.genSalt(10,function(err,salt){
+                    bcrypt.hash(newUser.password,salt,(err,hash)=>{
+                        if(err) throw err;
+                        newUser.password=hash;
+                        newUser.save()
+                                .then(user=>res.json(user))
+                                .catch(err=>console.log(err));
+                    })
+                })
+            }
+        })
+
+});
+```
+
+在postman中测试，成功返回：
+
+![image-20220602165538083](https://picture-1308610694.cos.ap-nanjing.myqcloud.com/202206021655120.png)
+
+云数据库中也有了这条数据：
+
+![image-20220602165839563](https://picture-1308610694.cos.ap-nanjing.myqcloud.com/202206021658617.png)
